@@ -7,11 +7,13 @@ import {
   Settings as SettingsIcon,
   Assessment as AssessmentIcon,
   People as PeopleIcon,
+  AutoAwesome as AutoAwesomeIcon,
 } from '@mui/icons-material';
 
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
   { text: 'Campaigns', icon: <CampaignIcon />, path: '/campaigns' },
+  { text: 'AI Studio', icon: <AutoAwesomeIcon />, path: '/ai' },
   { text: 'Audiences', icon: <PeopleIcon />, path: '/audiences' },
   { text: 'Reports', icon: <AssessmentIcon />, path: '/reports' },
   { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
@@ -61,4 +63,4 @@ const Sidebar: React.FC = () => {
   );
 };
 
-export default Sidebar; 
+export default Sidebar;

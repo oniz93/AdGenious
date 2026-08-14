@@ -13,6 +13,7 @@ import Register from './pages/Register';
 import FacebookCallback from './pages/FacebookCallback';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Campaigns from './pages/Campaigns/Campaigns';
+import AIStudio from './pages/AIStudio';
 import Billing from './pages/Billing';
 import Settings from './pages/Settings';
 
@@ -46,6 +47,7 @@ function AppInner() {
             <Route element={<Layout />}>
               <Route path="/" element={<Dashboard />} />
               <Route path="/campaigns" element={<Campaigns />} />
+              <Route path="/ai" element={<AIStudio />} />
               <Route path="/audiences" element={<Audiences />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/billing" element={<Billing />} />
