@@ -18,13 +18,13 @@ import CampaignWizard from './pages/Campaigns/CampaignWizard';
 import AIStudio from './pages/AIStudio';
 import Billing from './pages/Billing';
 import Settings from './pages/Settings';
+import Reports from './pages/Reports';
 
 const Placeholder = ({ title }: { title: string }) => (
   <div>{title}</div>
 );
 
 const Audiences = () => <Placeholder title="Audiences" />;
-const Reports = () => <Placeholder title="Reports" />;
 
 function AppInner() {
   const dispatch = useAppDispatch();
