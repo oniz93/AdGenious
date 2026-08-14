@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Box, CircularProgress, Grid, Paper, Typography } from '@mui/material';
+import { Alert, Box, Grid, Paper, Skeleton, Typography } from '@mui/material';
 import {
   TrendingUp as TrendingUpIcon,
   Campaign as CampaignIcon,
@@ -62,8 +62,15 @@ const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
-        <CircularProgress />
+      <Box sx={{ flexGrow: 1 }}>
+        <Skeleton variant="text" width={200} height={40} sx={{ mb: 4 }} />
+        <Grid container spacing={3}>
+          {[0, 1, 2, 3, 4, 5].map((item) => (
+            <Grid item xs={12} sm={6} md={3} key={item}>
+              <Skeleton variant="rounded" height={140} />
+            </Grid>
+          ))}
+        </Grid>
       </Box>
     );
   }

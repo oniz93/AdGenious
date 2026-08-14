@@ -10,6 +10,7 @@ import metaRoutes from './routes/meta';
 import campaignRoutes from './routes/campaigns';
 import audienceRoutes from './routes/audiences';
 import insightRoutes from './routes/insights';
+import notificationRoutes from './routes/notifications';
 import { billingRouter, stripeWebhookRouter } from './routes/billing';
 
 export function createApp(): Express {
@@ -48,6 +49,7 @@ export function createApp(): Express {
   app.use('/api/campaigns', campaignRoutes);
   app.use('/api/audiences', audienceRoutes);
   app.use('/api/insights', insightRoutes);
+  app.use('/api/notifications', notificationRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
