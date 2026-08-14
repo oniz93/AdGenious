@@ -34,6 +34,10 @@ export class ApiError extends Error {
     return new ApiError(429, message, details);
   }
 
+  static badGateway(message = 'Bad gateway', details?: unknown) {
+    return new ApiError(502, message, details);
+  }
+
   static internal(message = 'Internal server error', details?: unknown) {
     return new ApiError(500, message, details);
   }
