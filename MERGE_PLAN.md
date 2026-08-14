@@ -20,6 +20,12 @@ Each feature was implemented on its own branch so it can be reviewed and merged 
 | 11 | `feat/notifications-polish` | In-app notifications, audience explorer, UI polish | #10 |
 | 12 | `feat/testing-docs` | Tests, READMEs, Dockerfiles, CI | #11 |
 
+## Important note on PR diffs
+
+The branches form a sequential train, so branch `feat/auth` is exactly one commit ahead of `feat/backend-foundation`, branch `feat/facebook-login` is exactly one commit ahead of `feat/auth`, and so on.
+
+**Open and merge the PRs in order.** Once you merge branch N into `main`, branch N+1 will show *only its own feature* in the GitHub PR diff, because its base (`main`) now contains all previous commits. If you open all PRs at the same time before merging, later PRs will temporarily show a cumulative diff — that is expected and disappears as you merge in order.
+
 ## Recommended merge flow
 
 1. **Merge #1 into `main`** — foundation only; no user-visible feature.
