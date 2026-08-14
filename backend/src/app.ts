@@ -6,6 +6,7 @@ import { logger } from './utils/logger';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
 import aiRoutes from './routes/ai';
+import metaRoutes from './routes/meta';
 import { billingRouter, stripeWebhookRouter } from './routes/billing';
 
 export function createApp(): Express {
@@ -40,6 +41,7 @@ export function createApp(): Express {
   app.use('/api/users', userRoutes);
   app.use('/api/billing', billingRouter);
   app.use('/api/ai', aiRoutes);
+  app.use('/api/meta', metaRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
