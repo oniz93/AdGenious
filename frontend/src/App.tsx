@@ -13,6 +13,8 @@ import Register from './pages/Register';
 import FacebookCallback from './pages/FacebookCallback';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Campaigns from './pages/Campaigns/Campaigns';
+import Billing from './pages/Billing';
+import Settings from './pages/Settings';
 
 const Placeholder = ({ title }: { title: string }) => (
   <div>{title}</div>
@@ -20,7 +22,6 @@ const Placeholder = ({ title }: { title: string }) => (
 
 const Audiences = () => <Placeholder title="Audiences" />;
 const Reports = () => <Placeholder title="Reports" />;
-const Settings = () => <Placeholder title="Settings" />;
 
 function AppInner() {
   const dispatch = useAppDispatch();
@@ -47,6 +48,7 @@ function AppInner() {
               <Route path="/campaigns" element={<Campaigns />} />
               <Route path="/audiences" element={<Audiences />} />
               <Route path="/reports" element={<Reports />} />
+              <Route path="/billing" element={<Billing />} />
               <Route path="/settings" element={<Settings />} />
             </Route>
           </Route>

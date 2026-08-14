@@ -34,6 +34,10 @@ export class ApiError extends Error {
     return new ApiError(429, message, details);
   }
 
+  static paymentRequired(message = 'Payment required', details?: unknown) {
+    return new ApiError(402, message, details);
+  }
+
   static badGateway(message = 'Bad gateway', details?: unknown) {
     return new ApiError(502, message, details);
   }

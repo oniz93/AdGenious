@@ -5,6 +5,7 @@ import { errorHandler, notFoundHandler } from './middleware/error';
 import { logger } from './utils/logger';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
+import { billingRouter, stripeWebhookRouter } from './routes/billing';
 
 export function createApp(): Express {
   const app = express();
@@ -13,6 +14,11 @@ export function createApp(): Express {
     origin: env.FRONTEND_URL,
     credentials: true,
   }));
+
+  // Stripe webhook needs the raw body to verify signatures, so it is mounted
+  // before the global JSON body parser.
+  app.use('/api/billing/stripe-webhook', stripeWebhookRouter);
+
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true }));
 
@@ -31,6 +37,7 @@ export function createApp(): Express {
 
   app.use('/api/auth', authRoutes);
   app.use('/api/users', userRoutes);
+  app.use('/api/billing', billingRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
