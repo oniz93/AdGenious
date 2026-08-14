@@ -1,99 +1,137 @@
 # AdGenious
 
-**AdGenious** is an AI-powered advertising platform designed to automate ad creation and optimization. This repository contains the source code for both the frontend dashboard and the backend API services.
+**AdGenious** is an AI-powered advertising platform that automates the creation, launch, and optimization of Facebook and Instagram ad campaigns. It connects the Meta Marketing API with OpenRouter's AI models so a marketer can go from a broad audience idea to live, optimized ads in minutes.
 
-## 🚀 Tech Stack
+## ✨ Features
+
+- **Email & Facebook authentication** — register/login with email or "Continue with Facebook" (OAuth). Facebook access tokens are encrypted at rest.
+- **Credits & Stripe billing** — purchase credit packages through Stripe Checkout, with a full credit ledger.
+- **AI Studio** — generate ad copy and creative images with OpenRouter, charged against your credit balance.
+- **Meta integration** — list ad accounts and Instagram business accounts, search targeting interests/behaviors, and get audience reach estimates.
+- **Campaign management** — full campaign → ad set → ad hierarchy with CRUD endpoints.
+- **Campaign wizard** — Meta-style flow: objective, audience builder (with automatic sub-audience generation and reach estimates), AI creatives, budget & schedule.
+- **Meta deployment** — launch the whole hierarchy to Meta Ads Manager, store Meta IDs, and sync statuses back.
+- **Reporting & optimization** — ingest performance insights, visualize them, and run rule-based auto-optimization (e.g. pause ads that spend without clicks).
+- **In-app notifications** — get notified when campaigns launch or optimization rules act.
+
+## 🧱 Tech Stack
 
 ### Frontend
-- **Framework:** React (TypeScript)
-- **UI Library:** Material UI (MUI) v5
-- **State Management:** Redux Toolkit
-- **Routing:** React Router v6
-- **Build Tool:** Create React App (react-scripts)
+- React (TypeScript), Create React App
+- Material UI v5
+- Redux Toolkit
+- React Router v6
+- Recharts
+- Stripe.js
 
 ### Backend
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **Language:** TypeScript
-- **Utilities:** Dotenv, CORS, Nodemon
+- Node.js, Express (TypeScript)
+- MongoDB + Mongoose
+- JWT auth, bcrypt, AES-256-GCM token encryption
+- Stripe, OpenRouter, and Meta Graph API integrations
 
-## 🛠️ Prerequisites
+## 📂 Repository Layout
 
-- Node.js (v18+ recommended)
-- npm (v9+)
-
-## 📦 Installation
-
-This project is set up as a monorepo-style workspace. You can install dependencies for the root, frontend, and backend with a single command:
-
-```bash
-# Install all dependencies
-npm run install:all
+```
+AdGenious/
+├── backend/          # Express + TypeScript API
+│   ├── src/
+│   │   ├── config/   # env parsing
+│   │   ├── db/       # MongoDB connection
+│   │   ├── middleware/
+│   │   ├── models/   # Mongoose models
+│   │   ├── routes/   # API routes
+│   │   ├── services/ # business logic + external APIs
+│   │   └── utils/
+│   └── Dockerfile
+├── frontend/         # React + MUI dashboard
+│   ├── src/
+│   │   ├── api/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── store/
+│   │   └── utils/
+│   └── Dockerfile
+├── docker-compose.yml         # local MongoDB
+├── docker-compose.prod.yml    # full production-like stack
+└── MERGE_PLAN.md              # feature-branch / PR merge order
 ```
 
-Alternatively, you can install them individually:
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 20+ (developed on Node 25)
+- npm 9+
+- MongoDB 7 (or Docker)
+- A Meta app (Facebook Login + Marketing API) with a redirect URI set to `http://localhost:5001/api/auth/facebook/callback`
+- OpenRouter API key (optional, for AI)
+- Stripe test keys (optional, for billing)
+
+### Install
 
 ```bash
-# Root dependencies
 npm install
-
-# Frontend dependencies
-npm run install:frontend
-
-# Backend dependencies
-npm run install:backend
 ```
 
-## 🏃‍♂️ Running the Application
+### Configure environment
 
-To start both the frontend and backend servers concurrently in development mode:
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+```
+
+Fill in the values. The most important ones for local development:
+
+| Variable | Purpose |
+| --- | --- |
+| `MONGODB_URI` | MongoDB connection string |
+| `JWT_SECRET` | Secret used to sign session JWTs |
+| `ENCRYPTION_KEY` | Secret used to encrypt Facebook tokens |
+| `META_APP_ID` / `META_APP_SECRET` | Meta/Facebook app credentials |
+| `META_REDIRECT_URI` | Must match the app's OAuth redirect URI |
+| `OPENROUTER_API_KEY` | OpenRouter key for AI generation |
+| `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` | Stripe billing keys |
+
+### Run
+
+Start MongoDB:
+
+```bash
+docker compose up -d mongo
+```
+
+Start backend and frontend concurrently:
 
 ```bash
 npm start
 ```
 
-This will launch:
 - **Frontend:** http://localhost:3000
 - **Backend:** http://localhost:5001
 
-### Individual Services
+Individual services:
 
-If you prefer to run services separately:
-
-**Frontend only:**
 ```bash
+npm run start:backend
 npm run start:frontend
 ```
 
-**Backend only:**
+## 🧪 Tests
+
 ```bash
-npm run start:backend
+npm run test --workspace backend
+npm run test --workspace frontend -- --watchAll=false
 ```
 
-## 📂 Project Structure
+## 🐳 Production-like Docker stack
 
-```
-AdGenious/
-├── backend/          # Express.js API server
-│   ├── src/
-│   │   └── server.ts # Entry point
-│   └── tsconfig.json
-├── frontend/         # React dashboard application
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   │   ├── Dashboard/
-│   │   │   └── Campaigns/
-│   │   └── theme/
-│   └── tsconfig.json
-└── package.json      # Root scripts for workspace management
+```bash
+docker compose -f docker-compose.prod.yml up --build
 ```
 
-## 🧪 Development Status
+## 🔀 Branching & Merge Plan
 
-Currently, the project is in the **early development/scaffolding phase**.
-- **Frontend:** Core directory structure, routing, and basic pages (Dashboard, Campaigns) are established.
-- **Backend:** Basic server setup with health check endpoints.
+Every feature lives on its own branch so it can be reviewed as an independent PR. See [`MERGE_PLAN.md`](./MERGE_PLAN.md) for the recommended merge order and review notes.
 
 ## 📄 License
 

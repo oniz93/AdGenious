@@ -48,7 +48,6 @@ const AIStudio: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [textResults, setTextResults] = useState<TextResult[]>([]);
   const [imageResults, setImageResults] = useState<ImageResult[]>([]);
-  const [copied, setCopied] = useState(false);
 
   const refreshCredits = () => dispatch(loadCurrentUser());
 
@@ -88,8 +87,6 @@ const AIStudio: React.FC = () => {
 
   const copyText = async (text: string) => {
     await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
   };
 
   return (
