@@ -99,6 +99,9 @@ export async function launchCampaign(user: UserDocument, campaign: CampaignDocum
             imageHash = uploaded.hash;
             ad.creative.imageHash = imageHash;
           }
+          if (!imageHash) {
+            throw ApiError.badRequest(`Ad "${ad.name}" has no creative image. Generate and select an image first.`);
+          }
 
           const metaCreative = await client.createAdCreative(adAccountId, {
             name: ad.name,
