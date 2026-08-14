@@ -20,7 +20,7 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { ArrowBack as ArrowBackIcon, Edit as EditIcon } from '@mui/icons-material';
+import { ArrowBack as ArrowBackIcon, Edit as EditIcon, RocketLaunch as RocketLaunchIcon } from '@mui/icons-material';
 import api, { getErrorMessage } from '../../api/client';
 import { AdSet, CampaignDetail as CampaignDetailType } from '../../types/campaign';
 
@@ -31,23 +31,42 @@ const CampaignDetail: React.FC = () => {
   const [adSets, setAdSets] = useState<AdSet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [launching, setLaunching] = useState(false);
+  const [launchMessage, setLaunchMessage] = useState<string | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data } = await api.get(`/api/campaigns/${campaignId}`);
+      setCampaign(data.campaign);
+      setAdSets(data.adSets);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const { data } = await api.get(`/api/campaigns/${campaignId}`);
-        setCampaign(data.campaign);
-        setAdSets(data.adSets);
-      } catch (err) {
-        setError(getErrorMessage(err));
-      } finally {
-        setLoading(false);
-      }
-    };
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [campaignId]);
+
+  const handleLaunch = async () => {
+    setLaunching(true);
+    setError(null);
+    setLaunchMessage(null);
+    try {
+      await api.post(`/api/campaigns/${campaignId}/launch`);
+      setLaunchMessage('Campaign launched to Meta successfully.');
+      await load();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setLaunching(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -72,6 +91,11 @@ const CampaignDetail: React.FC = () => {
           {error}
         </Alert>
       )}
+      {launchMessage && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {launchMessage}
+        </Alert>
+      )}
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box>
@@ -82,9 +106,20 @@ const CampaignDetail: React.FC = () => {
             {campaign.metaCampaignId && <Chip label={`Meta: ${campaign.metaCampaignId}`} size="small" variant="outlined" />}
           </Stack>
         </Box>
-        <Button variant="outlined" startIcon={<EditIcon />} onClick={() => navigate(`/campaigns/${campaign.id}/wizard`)}>
-          Configure
-        </Button>
+        <Stack direction="row" spacing={1}>
+          <Button variant="outlined" startIcon={<EditIcon />} onClick={() => navigate(`/campaigns/${campaign.id}/wizard`)}>
+            Configure
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<RocketLaunchIcon />}
+            onClick={handleLaunch}
+            disabled={launching || campaign.status === 'active' || campaign.status === 'launching'}
+          >
+            {launching ? 'Launching…' : 'Launch to Meta'}
+          </Button>
+        </Stack>
       </Box>
 
       <Grid container spacing={3} sx={{ mb: 3 }}>
