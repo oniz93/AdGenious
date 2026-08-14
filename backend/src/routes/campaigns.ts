@@ -49,6 +49,44 @@ const adSchema = z.object({
   }),
 });
 
+const adSetDraftSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().trim().min(1).max(200),
+  targeting: z.record(z.unknown()),
+  optimizationGoal: z.string().default('LINK_CLICKS'),
+  billingEvent: z.string().default('IMPRESSIONS'),
+  dailyBudgetCents: z.number().int().positive().optional(),
+  lifetimeBudgetCents: z.number().int().positive().optional(),
+  startTime: z.string().optional(),
+  endTime: z.string().optional(),
+  reachEstimate: z.number().optional(),
+  subAudienceIndex: z.number().int().optional(),
+  ads: z.array(z.object({
+    id: z.string().optional(),
+    name: z.string().trim().min(1).max(200),
+    creative: z.object({
+      message: z.string().min(1).max(5000),
+      headline: z.string().max(255).optional(),
+      description: z.string().max(255).optional(),
+      linkUrl: z.string().url(),
+      callToAction: z.string().max(100).optional(),
+      imageUrl: z.string().url().optional(),
+      imageHash: z.string().optional(),
+      pageId: z.string().optional(),
+    }),
+  })),
+});
+
+const configureSchema = z.object({
+  name: z.string().trim().min(1).max(200).optional(),
+  objective: z.enum(['OUTCOME_AWARENESS', 'OUTCOME_TRAFFIC', 'OUTCOME_ENGAGEMENT', 'OUTCOME_LEADS', 'OUTCOME_SALES', 'OUTCOME_APP_PROMOTION']).optional(),
+  dailyBudgetCents: z.number().int().positive().optional().nullable(),
+  lifetimeBudgetCents: z.number().int().positive().optional().nullable(),
+  startTime: z.string().optional().nullable(),
+  endTime: z.string().optional().nullable(),
+  adSets: z.array(adSetDraftSchema).optional(),
+});
+
 async function getOwnedCampaign(userId: string, campaignId: string) {
   if (!mongoose.isValidObjectId(campaignId)) {
     throw ApiError.notFound('Campaign not found');
@@ -164,6 +202,77 @@ router.get(
           })),
       })),
     });
+  })
+);
+
+router.put(
+  '/:campaignId/configure',
+  requireAuth,
+  validateBody(configureSchema),
+  asyncHandler(async (req, res) => {
+    const { user } = req as AuthedRequest;
+    const campaign = await getOwnedCampaign(String(user!._id), req.params.campaignId);
+    const body = req.body as z.infer<typeof configureSchema>;
+
+    if (body.name !== undefined) campaign.name = body.name;
+    if (body.objective !== undefined) campaign.objective = body.objective;
+    campaign.dailyBudgetCents = body.dailyBudgetCents ?? campaign.dailyBudgetCents;
+    campaign.lifetimeBudgetCents = body.lifetimeBudgetCents ?? campaign.lifetimeBudgetCents;
+    campaign.startTime = body.startTime ?? campaign.startTime;
+    campaign.endTime = body.endTime ?? campaign.endTime;
+    if (campaign.status === 'draft' || campaign.status === 'error') {
+      campaign.status = 'ready';
+    }
+    await campaign.save();
+
+    if (body.adSets) {
+      const incomingAdSetIds: string[] = [];
+      for (const [index, adSetDraft] of body.adSets.entries()) {
+        let adSet;
+        if (adSetDraft.id && mongoose.isValidObjectId(adSetDraft.id)) {
+          adSet = await AdSet.findOne({ _id: adSetDraft.id, campaignId: campaign._id, userId: user!._id });
+        }
+        if (!adSet) {
+          adSet = new AdSet({ campaignId: campaign._id, userId: user!._id });
+        }
+        adSet.name = adSetDraft.name;
+        adSet.targeting = adSetDraft.targeting;
+        adSet.optimizationGoal = adSetDraft.optimizationGoal;
+        adSet.billingEvent = adSetDraft.billingEvent;
+        adSet.dailyBudgetCents = adSetDraft.dailyBudgetCents;
+        adSet.lifetimeBudgetCents = adSetDraft.lifetimeBudgetCents;
+        adSet.startTime = adSetDraft.startTime;
+        adSet.endTime = adSetDraft.endTime;
+        adSet.reachEstimate = adSetDraft.reachEstimate;
+        adSet.subAudienceIndex = index;
+        if (adSet.status === 'draft' || adSet.status === 'error') adSet.status = 'ready';
+        await adSet.save();
+        incomingAdSetIds.push(String(adSet._id));
+
+        const incomingAdIds: string[] = [];
+        for (const adDraft of adSetDraft.ads) {
+          let ad;
+          if (adDraft.id && mongoose.isValidObjectId(adDraft.id)) {
+            ad = await Ad.findOne({ _id: adDraft.id, adSetId: adSet._id, userId: user!._id });
+          }
+          if (!ad) {
+            ad = new Ad({ adSetId: adSet._id, campaignId: campaign._id, userId: user!._id });
+          }
+          ad.name = adDraft.name;
+          ad.creative = adDraft.creative;
+          if (ad.status === 'draft' || ad.status === 'error') ad.status = 'ready';
+          await ad.save();
+          incomingAdIds.push(String(ad._id));
+        }
+
+        await Ad.deleteMany({ adSetId: adSet._id, _id: { $nin: incomingAdIds } });
+      }
+
+      await AdSet.deleteMany({ campaignId: campaign._id, _id: { $nin: incomingAdSetIds } });
+      await Ad.deleteMany({ campaignId: campaign._id, adSetId: { $nin: incomingAdSetIds } });
+    }
+
+    res.json({ success: true, campaign: { id: String(campaign._id), status: campaign.status } });
   })
 );
 

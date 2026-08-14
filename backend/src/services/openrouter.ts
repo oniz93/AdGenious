@@ -9,7 +9,7 @@ interface OpenRouterError {
 }
 
 export interface TextGenerationResult {
-  text: string;
+  texts: string[];
   requestId: string;
   model: string;
   usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
@@ -63,7 +63,7 @@ async function openRouterFetch<T>(path: string, body: unknown): Promise<{ data: 
   }
 }
 
-export async function generateText(prompt: string, model?: string): Promise<TextGenerationResult> {
+export async function generateText(prompt: string, model?: string, n = 1): Promise<TextGenerationResult> {
   const selectedModel = model || env.OPENROUTER_TEXT_MODEL;
   const { data, requestId } = await openRouterFetch<{
     choices?: Array<{ message?: { content?: string } }>;
@@ -72,15 +72,20 @@ export async function generateText(prompt: string, model?: string): Promise<Text
   }>('/chat/completions', {
     model: selectedModel,
     messages: [{ role: 'user', content: prompt }],
+    n,
   });
 
-  const text = data.choices?.[0]?.message?.content;
-  if (!text) {
+  const texts = (data.choices ?? [])
+    .map((choice) => choice.message?.content)
+    .filter((content): content is string => Boolean(content))
+    .map((content) => content.trim());
+
+  if (texts.length === 0) {
     throw ApiError.badGateway('OpenRouter returned an empty text response');
   }
 
   return {
-    text: text.trim(),
+    texts,
     requestId,
     model: data.model ?? selectedModel,
     usage: data.usage
