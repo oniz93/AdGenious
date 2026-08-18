@@ -5,12 +5,15 @@ import {
   Button,
   Card,
   CardContent,
+  Divider,
   Link,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
+import { Facebook as FacebookIcon } from '@mui/icons-material';
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../api/client';
 import { login } from '../store/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 
@@ -33,6 +36,10 @@ const Login: React.FC = () => {
     }
   };
 
+  const handleFacebookLogin = () => {
+    window.location.href = `${API_BASE_URL}/api/auth/facebook`;
+  };
+
   return (
     <Box
       sx={{
@@ -52,6 +59,18 @@ const Login: React.FC = () => {
           <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
             Sign in to your account
           </Typography>
+
+          <Button
+            variant="contained"
+            startIcon={<FacebookIcon />}
+            fullWidth
+            onClick={handleFacebookLogin}
+            sx={{ bgcolor: '#1877F2', '&:hover': { bgcolor: '#0A5AC2' } }}
+          >
+            Continue with Facebook
+          </Button>
+
+          <Divider sx={{ my: 2 }}>or</Divider>
 
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>

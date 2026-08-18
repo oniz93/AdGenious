@@ -10,6 +10,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import FacebookCallback from './pages/FacebookCallback';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Campaigns from './pages/Campaigns/Campaigns';
 
@@ -39,6 +40,7 @@ function AppInner() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/auth/facebook/callback" element={<FacebookCallback />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
               <Route path="/" element={<Dashboard />} />

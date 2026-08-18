@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
 export const TOKEN_STORAGE_KEY = 'adgenious_token';
 
 const api = axios.create({
-  baseURL,
+  baseURL: API_BASE_URL,
   timeout: 60_000,
 });
 
