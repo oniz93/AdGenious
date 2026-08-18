@@ -10,6 +10,7 @@
     "@mui/material": "^5.15.10",
     "@mui/x-data-grid": "^6.19.5",
     "@reduxjs/toolkit": "^2.2.1",
+    "@stripe/stripe-js": "^3.4.0",
     "@testing-library/dom": "^9.3.4",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.2.1",
