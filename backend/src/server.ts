@@ -2,6 +2,7 @@ import { createApp } from './app';
 import { env } from './config/env';
 import { connectToDatabase } from './db/connection';
 import { logger } from './utils/logger';
+import { startSchedulers } from './services/scheduler';
 
 async function bootstrap() {
   try {
@@ -14,6 +15,7 @@ async function bootstrap() {
   const app = createApp();
   const server = app.listen(env.PORT, () => {
     logger.info(`AdGenious backend listening on port ${env.PORT}`, { env: env.NODE_ENV });
+    startSchedulers();
   });
 
   const shutdown = (signal: string) => {

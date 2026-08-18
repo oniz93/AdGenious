@@ -175,7 +175,27 @@ export class MetaApiClient {
     };
   }
 
+  async getPages(): Promise<Array<{ id: string; name: string; accessToken?: string }>> {
+    const data = await this.request<{ data?: Array<Record<string, unknown>> }>('GET', 'me/accounts', {
+      fields: 'id,name,access_token',
+      limit: 100,
+    });
+    return (data.data ?? []).map((item) => ({
+      id: String(item.id),
+      name: String(item.name ?? item.id),
+      accessToken: item.access_token ? String(item.access_token) : undefined,
+    }));
+  }
+
+  async getObjectStatus(objectId: string): Promise<{ status?: string; effectiveStatus?: string }> {
+    const data = await this.request<{ status?: string; effective_status?: string }>('GET', objectId, {
+      fields: 'status,effective_status',
+    });
+    return { status: data.status, effectiveStatus: data.effective_status };
+  }
+
   // ---- Targeting ----
+
 
   async searchTargeting(type: 'adinterest' | 'adgeolocation' | 'adTargetingCategory', query: string, limit = 25): Promise<TargetingInterest[]> {
     const params: Record<string, string | number | boolean> = {

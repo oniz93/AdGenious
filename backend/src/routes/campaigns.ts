@@ -8,6 +8,7 @@ import { AuthedRequest, requireAuth } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 import { asyncHandler } from '../utils/asyncHandler';
 import { ApiError } from '../utils/ApiError';
+import { launchCampaign } from '../services/deployment';
 
 const router = Router();
 
@@ -202,6 +203,17 @@ router.get(
           })),
       })),
     });
+  })
+);
+
+router.post(
+  '/:campaignId/launch',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { user } = req as AuthedRequest;
+    const campaign = await getOwnedCampaign(String(user!._id), req.params.campaignId);
+    const result = await launchCampaign(user!, campaign);
+    res.json({ success: true, ...result });
   })
 );
 
