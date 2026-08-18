@@ -7,6 +7,8 @@ import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
 import aiRoutes from './routes/ai';
 import metaRoutes from './routes/meta';
+import campaignRoutes from './routes/campaigns';
+import audienceRoutes from './routes/audiences';
 import { billingRouter, stripeWebhookRouter } from './routes/billing';
 
 export function createApp(): Express {
@@ -42,6 +44,8 @@ export function createApp(): Express {
   app.use('/api/billing', billingRouter);
   app.use('/api/ai', aiRoutes);
   app.use('/api/meta', metaRoutes);
+  app.use('/api/campaigns', campaignRoutes);
+  app.use('/api/audiences', audienceRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
