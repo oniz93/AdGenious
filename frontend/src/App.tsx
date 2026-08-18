@@ -14,6 +14,7 @@ import FacebookCallback from './pages/FacebookCallback';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Campaigns from './pages/Campaigns/Campaigns';
 import CampaignDetail from './pages/Campaigns/CampaignDetail';
+import CampaignWizard from './pages/Campaigns/CampaignWizard';
 import AIStudio from './pages/AIStudio';
 import Billing from './pages/Billing';
 import Settings from './pages/Settings';
@@ -49,6 +50,7 @@ function AppInner() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/campaigns" element={<Campaigns />} />
               <Route path="/campaigns/:campaignId" element={<CampaignDetail />} />
+              <Route path="/campaigns/:campaignId/wizard" element={<CampaignWizard />} />
               <Route path="/ai" element={<AIStudio />} />
               <Route path="/audiences" element={<Audiences />} />
               <Route path="/reports" element={<Reports />} />

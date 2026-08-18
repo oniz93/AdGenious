@@ -28,7 +28,7 @@ import { loadCurrentUser } from '../store/slices/authSlice';
 
 interface TextResult {
   type: 'text';
-  text: string;
+  texts: string[];
   model: string;
 }
 
@@ -213,23 +213,25 @@ const AIStudio: React.FC = () => {
             Generated copy
           </Typography>
           <Grid container spacing={2}>
-            {textResults.map((result, index) => (
-              <Grid item xs={12} md={6} key={index}>
-                <Paper sx={{ p: 2 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      {result.model}
+            {textResults.flatMap((result, resultIndex) =>
+              result.texts.map((text, textIndex) => (
+                <Grid item xs={12} md={6} key={`${resultIndex}-${textIndex}`}>
+                  <Paper sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        {result.model} · variation {textIndex + 1}
+                      </Typography>
+                      <IconButton size="small" onClick={() => copyText(text)}>
+                        <ContentCopyIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                    <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                      {text}
                     </Typography>
-                    <IconButton size="small" onClick={() => copyText(result.text)}>
-                      <ContentCopyIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                  <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-                    {result.text}
-                  </Typography>
-                </Paper>
-              </Grid>
-            ))}
+                  </Paper>
+                </Grid>
+              ))
+            )}
           </Grid>
         </>
       )}

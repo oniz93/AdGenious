@@ -11,6 +11,7 @@ const router = Router();
 
 const textSchema = z.object({
   prompt: z.string().trim().min(1).max(8000),
+  n: z.number().int().min(1).max(5).default(1),
   model: z.string().trim().min(1).max(200).optional(),
 });
 
@@ -27,15 +28,15 @@ router.post(
   validateBody(textSchema),
   asyncHandler(async (req, res) => {
     const { user } = req as AuthedRequest;
-    const { prompt, model } = req.body as z.infer<typeof textSchema>;
+    const { prompt, n, model } = req.body as z.infer<typeof textSchema>;
 
-    const result = await generateText(prompt, model);
-    const remaining = await deductCredits(String(user!._id), CREDIT_COSTS.text, `AI text generation`);
+    const result = await generateText(prompt, model, n);
+    const remaining = await deductCredits(String(user!._id), CREDIT_COSTS.text * result.texts.length, `AI text generation (${result.texts.length})`);
 
     await GeneratedContent.create({
       userId: user!._id,
       contentType: 'text',
-      data: { prompt, text: result.text, model: result.model },
+      data: { prompt, texts: result.texts, model: result.model },
       openrouterRequestId: result.requestId,
     });
 
@@ -43,7 +44,7 @@ router.post(
       success: true,
       content: {
         type: 'text',
-        text: result.text,
+        texts: result.texts,
         model: result.model,
       },
       creditsRemaining: remaining,
