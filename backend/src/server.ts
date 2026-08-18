@@ -1,24 +1,29 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
+import { createApp } from './app';
+import { env } from './config/env';
+import { connectToDatabase } from './db/connection';
+import { logger } from './utils/logger';
 
-// Load environment variables
-dotenv.config();
+async function bootstrap() {
+  try {
+    await connectToDatabase();
+  } catch (error) {
+    logger.error('Failed to connect to MongoDB. Start MongoDB (docker compose up -d mongo) or check MONGODB_URI.', { error });
+    process.exit(1);
+  }
 
-const app = express();
-const port = process.env.PORT || 5001;
+  const app = createApp();
+  const server = app.listen(env.PORT, () => {
+    logger.info(`AdGenious backend listening on port ${env.PORT}`, { env: env.NODE_ENV });
+  });
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+  const shutdown = (signal: string) => {
+    logger.info(`${signal} received, shutting down gracefully`);
+    server.close(() => process.exit(0));
+    setTimeout(() => process.exit(1), 10_000).unref();
+  };
 
-// Basic health check route
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
+}
 
-// Start server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-}); 
+void bootstrap();
