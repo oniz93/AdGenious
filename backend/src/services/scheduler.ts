@@ -5,6 +5,8 @@ import { User } from '../models/User';
 import { logger } from '../utils/logger';
 import { getMetaClientForUser } from './meta';
 import { mapMetaStatus } from './deployment';
+import { ingestInsights } from './insights';
+import { runOptimizationRules } from './optimization';
 
 async function syncStatuses() {
   const campaigns = await Campaign.find({
@@ -50,10 +52,18 @@ export function startSchedulers(): NodeJS.Timeout {
     syncStatuses().catch((error) => logger.error('Initial status sync failed', { error }));
   }, 5000);
 
+  setTimeout(() => {
+    ingestInsights()
+      .then(() => runOptimizationRules())
+      .catch((error) => logger.error('Initial insights/optimization run failed', { error }));
+  }, 10_000);
+
   const interval = setInterval(() => {
     syncStatuses().catch((error) => logger.error('Status sync failed', { error }));
-  }, 15 * 60 * 1000);
+    ingestInsights().catch((error) => logger.error('Insights sync failed', { error }));
+    runOptimizationRules().catch((error) => logger.error('Optimization run failed', { error }));
+  }, 30 * 60 * 1000);
   interval.unref();
-  logger.info('Scheduler started (status sync every 15 minutes)');
+  logger.info('Scheduler started (status, insights, and optimization every 30 minutes)');
   return interval;
 }
