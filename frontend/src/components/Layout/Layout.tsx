@@ -16,6 +16,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { logout } from '../../store/slices/authSlice';
+import NotificationsMenu from '../NotificationsMenu';
 
 const drawerWidth = 240;
 
@@ -76,6 +77,7 @@ const Layout: React.FC = () => {
               variant="outlined"
               size="small"
             />
+            <NotificationsMenu />
             <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} size="small">
               <AccountCircleIcon />
             </IconButton>

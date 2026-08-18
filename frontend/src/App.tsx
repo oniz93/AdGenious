@@ -19,12 +19,12 @@ import AIStudio from './pages/AIStudio';
 import Billing from './pages/Billing';
 import Settings from './pages/Settings';
 import Reports from './pages/Reports';
+import Audiences from './pages/Audiences';
 
 const Placeholder = ({ title }: { title: string }) => (
   <div>{title}</div>
 );
 
-const Audiences = () => <Placeholder title="Audiences" />;
 
 function AppInner() {
   const dispatch = useAppDispatch();
