@@ -5,6 +5,7 @@ import { errorHandler, notFoundHandler } from './middleware/error';
 import { logger } from './utils/logger';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
+import aiRoutes from './routes/ai';
 import { billingRouter, stripeWebhookRouter } from './routes/billing';
 
 export function createApp(): Express {
@@ -38,6 +39,7 @@ export function createApp(): Express {
   app.use('/api/auth', authRoutes);
   app.use('/api/users', userRoutes);
   app.use('/api/billing', billingRouter);
+  app.use('/api/ai', aiRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
