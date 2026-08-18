@@ -1,8 +1,21 @@
-import React from 'react';
-import { Box, AppBar, Toolbar, Typography, useTheme } from '@mui/material';
+import React, { useState } from 'react';
+import {
+  AppBar,
+  Box,
+  Chip,
+  IconButton,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Typography,
+  useTheme,
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Outlet } from 'react-router-dom';
+import { AccountCircle as AccountCircleIcon, Logout as LogoutIcon } from '@mui/icons-material';
+import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { logout } from '../../store/slices/authSlice';
 
 const drawerWidth = 240;
 
@@ -27,7 +40,17 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
 
 const Layout: React.FC = () => {
   const theme = useTheme();
-  const [open] = React.useState(true);
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [open] = useState(true);
+
+  const handleLogout = () => {
+    setAnchorEl(null);
+    dispatch(logout());
+    navigate('/login');
+  };
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -42,10 +65,28 @@ const Layout: React.FC = () => {
           borderBottom: `1px solid ${theme.palette.divider}`,
         }}
       >
-        <Toolbar>
+        <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Typography variant="h6" noWrap component="div">
             AdGenious
           </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Chip
+              label={`${user?.credits ?? 0} credits`}
+              color="primary"
+              variant="outlined"
+              size="small"
+            />
+            <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} size="small">
+              <AccountCircleIcon />
+            </IconButton>
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
+              <MenuItem disabled>{user?.email}</MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <LogoutIcon fontSize="small" sx={{ mr: 1 }} />
+                Logout
+              </MenuItem>
+            </Menu>
+          </Box>
         </Toolbar>
       </AppBar>
       <Sidebar />
@@ -57,4 +98,4 @@ const Layout: React.FC = () => {
   );
 };
 
-export default Layout; 
+export default Layout;

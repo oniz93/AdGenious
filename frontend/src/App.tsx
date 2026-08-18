@@ -1,32 +1,65 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 import CssBaseline from '@mui/material/CssBaseline';
+import { Provider } from 'react-redux';
 import ThemeProvider from './theme/ThemeProvider';
+import { store } from './store';
+import { useAppDispatch, useAppSelector } from './store/hooks';
+import { loadCurrentUser } from './store/slices/authSlice';
+import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout/Layout';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard/Dashboard';
+import Campaigns from './pages/Campaigns/Campaigns';
 
-// Placeholder components for routes
-const Campaigns = () => <div>Campaigns</div>;
-const Audiences = () => <div>Audiences</div>;
-const Reports = () => <div>Reports</div>;
-const Settings = () => <div>Settings</div>;
+const Placeholder = ({ title }: { title: string }) => (
+  <div>{title}</div>
+);
 
-function App() {
+const Audiences = () => <Placeholder title="Audiences" />;
+const Reports = () => <Placeholder title="Reports" />;
+const Settings = () => <Placeholder title="Settings" />;
+
+function AppInner() {
+  const dispatch = useAppDispatch();
+  const { token, loading } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (token && !loading) {
+      dispatch(loadCurrentUser());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, token]);
+
   return (
     <ThemeProvider>
       <CssBaseline />
       <Router>
         <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/campaigns" element={<Campaigns />} />
-            <Route path="/audiences" element={<Audiences />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/settings" element={<Settings />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route element={<ProtectedRoute />}>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/campaigns" element={<Campaigns />} />
+              <Route path="/audiences" element={<Audiences />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
           </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </ThemeProvider>
+  );
+}
+
+function App() {
+  return (
+    <Provider store={store}>
+      <AppInner />
+    </Provider>
   );
 }
 

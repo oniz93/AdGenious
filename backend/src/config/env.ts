@@ -14,6 +14,8 @@ const schema = z.object({
   JWT_EXPIRES_IN: z.string().default('7d'),
   ENCRYPTION_KEY: z.string().default('dev-only-32-byte-encryption-key!'),
 
+  SIGNUP_CREDITS: z.coerce.number().default(50),
+
   META_APP_ID: z.string().optional(),
   META_APP_SECRET: z.string().optional(),
   META_API_VERSION: z.string().default('v19.0'),

@@ -3,6 +3,8 @@ import cors from 'cors';
 import { env } from './config/env';
 import { errorHandler, notFoundHandler } from './middleware/error';
 import { logger } from './utils/logger';
+import authRoutes from './routes/auth';
+import userRoutes from './routes/users';
 
 export function createApp(): Express {
   const app = express();
@@ -14,7 +16,6 @@ export function createApp(): Express {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true }));
 
-  // Simple request logging
   app.use((req, _res, next) => {
     logger.debug(`${req.method} ${req.originalUrl}`);
     next();
@@ -27,6 +28,9 @@ export function createApp(): Express {
       timestamp: new Date().toISOString(),
     });
   });
+
+  app.use('/api/auth', authRoutes);
+  app.use('/api/users', userRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
